@@ -47,7 +47,7 @@ jobs:
         # Use static tag so that these builds can always use latest
         /kaniko/executor \
           --dockerfile="./deploy/Dockerfile" \
-          --context="git:///github.com/chainguard-dev/kaniko#v${VERSION}" \
+          --context="git://github.com/chainguard-dev/kaniko#v${VERSION}" \
           --destination="ghcr.io/${{ github.repository }}:debug" \
           --build-arg TARGETOS=linux \
           --build-arg TARGETARCH=$TARGETARCH \
