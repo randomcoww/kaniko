@@ -1,0 +1,65 @@
+# References:
+# https://some-natalie.dev/blog/kaniko-in-arc/
+# https://dev.to/ipo/using-kaniko-to-build-and-publish-container-image-with-github-action-on-github-self-hosted-runners-d5m
+
+name: Image Build
+on:
+  push:
+    tags:
+    - "*"
+
+jobs:
+  build:
+    runs-on: arc-runner-${{ github.event.repository.name }}
+    container:
+      image: gcr.io/kaniko-project/executor:debug
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - name: Set tag
+      run: |
+        TARGETARCH=$(arch)
+        TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64}
+        echo TARGETARCH=$TARGETARCH | tee -a "$GITHUB_ENV"
+
+        echo VERSION=$(wget -O - https://api.github.com/repos/chainguard-dev/kaniko/releases/latest | grep tag_name | cut -d '"' -f 4 | tr -d 'v') | tee -a "$GITHUB_ENV"
+        echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
+
+    - name: Build and release container
+      run: |
+        cat > $DOCKER_CONFIG/config.json <<EOF
+        {
+          "auths": {
+            "ghcr.io": {
+              "auth": "$(echo -n ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} | base64 -w0)"
+            }
+          }
+        }
+        EOF
+
+        /kaniko/executor \
+          --dockerfile="./deploy/Dockerfile" \
+          --context="git:///github.com/chainguard-dev/kaniko#v${VERSION}" \
+          --destination="ghcr.io/${{ github.repository }}:v$VERSION.$TAG" \
+          --build-arg TARGETOS=linux \
+          --build-arg TARGETARCH=$TARGETARCH \
+          --skip-unused-stages \
+          --target kaniko-debug \
+          --push-retry 3
+  cleanup:
+    needs:
+      - build
+    runs-on: arc-runner-${{ github.event.repository.name }}
+    container:
+      image: docker.io/node:current-alpine
+    permissions:
+      packages: write
+    steps:
+      - name: Remove old container images
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: 4
+          token: ${{ secrets.GITHUB_TOKEN }}
