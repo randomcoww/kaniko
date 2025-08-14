@@ -51,6 +51,7 @@ jobs:
           --destination="ghcr.io/${{ github.repository }}:debug" \
           --build-arg TARGETOS=linux \
           --build-arg TARGETARCH=$TARGETARCH \
+          --skip-unused-stages \
           --target kaniko-debug \
           --push-retry 3
   cleanup:
