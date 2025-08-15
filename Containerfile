@@ -19,18 +19,17 @@ ENV GOBIN=/usr/local/bin
 
 RUN set -x \
   \
-  && mkdir -p /kaniko/.docker \
+  && mkdir -p /kaniko \
   && chmod 777 /kaniko \
   && git clone  --depth 1 -b $VERSION https://github.com/chainguard-dev/kaniko kaniko \
   && cd kaniko \
+  && make out/executor out/warmer \
+  && mv out/executor /kaniko \
+  && mv out/warmer /kaniko \
   && go install \
     github.com/GoogleCloudPlatform/docker-credential-gcr/v2 \
     github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login \
-    github.com/chrismellard/docker-credential-acr-env \
-  \
-  && make out/executor out/warmer \
-  && mv out/executor /kaniko \
-  && mv out/warmer /kaniko
+    github.com/chrismellard/docker-credential-acr-env
 
 # use musl busybox since it's staticly compiled on all platforms
 FROM busybox:musl AS busybox
@@ -52,3 +51,7 @@ ENV SSL_CERT_DIR=/kaniko/ssl/certs
 ENV DOCKER_CONFIG=/kaniko/.docker/
 ENV DOCKER_CREDENTIAL_GCR_CONFIG=/kaniko/.config/gcloud/docker_credential_gcr_config.json
 WORKDIR /workspace
+
+RUN set -x \
+  \
+  && mkdir -p $DOCKER_CONFIG
