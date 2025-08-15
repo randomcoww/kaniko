@@ -14,11 +14,15 @@ on:
     branches:
     - master
 
+env:
+  GO_VERSION: 1.25
+
 jobs:
   build:
     runs-on: arc-runner-${{ github.event.repository.name }}
     container:
-      image: gcr.io/kaniko-project/executor:debug
+      # image: gcr.io/kaniko-project/executor:debug
+      image: ghcr.io/randomcoww/kaniko:debug
     permissions:
       contents: read
       packages: write
@@ -43,6 +47,7 @@ jobs:
           --dockerfile="./Containerfile" \
           --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
           --destination="ghcr.io/${{ github.repository }}:debug" \
+          --build-arg GO_VERSION=$GO_VERSION \
           --build-arg VERSION=$VERSION \
           --push-retry 3
   cleanup:

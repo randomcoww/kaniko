@@ -1,6 +1,8 @@
 # https://github.com/chainguard-dev/kaniko/blob/main/deploy/Dockerfile
 
-FROM golang:1.25 AS builder
+ARG GO_VERSION=1.25
+
+FROM golang:$GO_VERSION AS builder
 WORKDIR /src
 
 ARG VERSION
