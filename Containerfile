@@ -36,7 +36,7 @@ FROM busybox:musl AS busybox
 
 FROM scratch
 
-COPY --from=busybox /bin /busybox
+COPY --from=busybox /bin /bin/
 COPY --from=builder /kaniko /
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/
 COPY --from=builder /src/kaniko/files/nsswitch.conf /etc/
