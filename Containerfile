@@ -50,24 +50,12 @@ WORKDIR /workspace
 
 ### FINAL STAGES ###
 
-FROM kaniko-base AS kaniko-warmer
-
-WORKDIR /workspace
-COPY --from=builder /src/kaniko/out/warmer /kaniko/warmer
-
-ENTRYPOINT ["/kaniko/warmer"]
-
-FROM kaniko-base AS kaniko-executor
-
-COPY --from=builder /src/kaniko/out/executor /kaniko/executor
-
-ENTRYPOINT ["/kaniko/executor"]
-
-FROM kaniko-executor AS kaniko-debug
+FROM kaniko-base AS kaniko-debug
 
 ENV PATH=/usr/local/bin:/kaniko:/busybox
 
-COPY --from=builder /src/kaniko/out/warmer /kaniko/warmer
+COPY --from=builder /src/kaniko/out/warmer /kaniko/
+COPY --from=builder /src/kaniko/out/executor /kaniko/
 
 COPY --from=busybox /bin /busybox
 # Declare /busybox as a volume to get it automatically in the path to ignore
