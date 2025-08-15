@@ -44,7 +44,7 @@ COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-gcr /kaniko/doc
 COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-ecr-login /kaniko/docker-credential-ecr-login
 COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-acr-env /kaniko/docker-credential-acr-env
 
-ENV PATH=/usr/local/bin:/kaniko:/busybox
+ENV PATH=/bin:/kaniko
 ENV HOME=/root
 ENV USER=root
 ENV SSL_CERT_DIR=/kaniko/ssl/certs
