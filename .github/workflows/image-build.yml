@@ -17,7 +17,6 @@ on:
 env:
   GO_VERSION: 1.25
   SSL_CERT_DIR: /kaniko-build/ssl/certs
-  # DOCKER_CONFIG: /kaniko/.docker/
 
 jobs:
   build:
@@ -31,7 +30,6 @@ jobs:
     steps:
     - name: Set tag
       run: |
-        mv /kaniko /kaniko-build
         mkdir -p $DOCKER_CONFIG
 
         echo VERSION=$(wget -O - https://api.github.com/repos/chainguard-dev/kaniko/releases/latest | grep tag_name | cut -d '"' -f 4) | tee -a "$GITHUB_ENV"
@@ -49,7 +47,8 @@ jobs:
         }
         EOF
 
-        /kaniko-build/executor \
+        /kaniko/executor \
+          --kaniko-dir=/kaniko-build \
           --dockerfile="./Containerfile" \
           --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
           --destination="ghcr.io/${{ github.repository }}:$VERSION.$TAG" \
