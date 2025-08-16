@@ -50,6 +50,7 @@ VOLUME /busybox
 RUN ["/busybox/mkdir", "-p", "/bin"]
 RUN ["/busybox/ln", "-s", "/busybox/sh", "/bin/sh"]
 
+# not working with kaniko build
 RUN set -x \
   \
   && chmod 777 /kaniko \

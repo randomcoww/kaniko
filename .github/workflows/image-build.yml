@@ -22,7 +22,6 @@ jobs:
   build:
     runs-on: arc-runner-${{ github.event.repository.name }}
     container:
-      # image: gcr.io/kaniko-project/executor:debug
       image: ghcr.io/randomcoww/kaniko:v1.25.1.20250816.1938
     permissions:
       contents: read
@@ -54,6 +53,7 @@ jobs:
           --destination="ghcr.io/${{ github.repository }}:$VERSION.$TAG" \
           --build-arg GO_VERSION=$GO_VERSION \
           --build-arg VERSION=$VERSION \
+          --cache \
           --push-retry 3
   cleanup:
     needs:
