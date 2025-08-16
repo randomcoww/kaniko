@@ -21,15 +21,15 @@ RUN set -x \
   \
   && git clone  --depth 1 -b $VERSION https://github.com/chainguard-dev/kaniko kaniko \
   && cd kaniko \
-  && make \
-    out/executor \
-    out/warmer \
-  && mv out/executor /usr/loca/bin/ \
-  && mv out/warmer /usr/loca/bin/ \
   && go install \
     github.com/GoogleCloudPlatform/docker-credential-gcr/v2 \
     github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login \
     github.com/chrismellard/docker-credential-acr-env
+  && make \
+    out/executor \
+    out/warmer \
+  && mv out/executor /usr/loca/bin/ \
+  && mv out/warmer /usr/loca/bin/
 
 # use musl busybox since it's staticly compiled on all platforms
 FROM busybox:musl AS busybox
