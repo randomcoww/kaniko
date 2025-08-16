@@ -57,7 +57,7 @@ jobs:
           --build-arg GO_VERSION=$GO_VERSION \
           --build-arg VERSION=$VERSION \
           --push-retry 3 \
-          --verbosity debug
+          --verbosity trace
   cleanup:
     needs:
       - build
