@@ -37,21 +37,19 @@ FROM busybox:musl AS busybox
 
 FROM scratch
 
-COPY --from=busybox /bin /bin/
+COPY --from=busybox /bin /busybox
 COPY --from=builder /usr/local/bin /kaniko
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/
 COPY --from=builder /src/kaniko/files/nsswitch.conf /etc/
 
-ENV PATH=/bin:/kaniko
+ENV PATH=/usr/local/bin:/kaniko:/busybox
 ENV HOME=/root
 ENV USER=root
 ENV SSL_CERT_DIR=/kaniko/ssl/certs
 ENV DOCKER_CONFIG=/kaniko/.docker/
 ENV DOCKER_CREDENTIAL_GCR_CONFIG=/kaniko/.config/gcloud/docker_credential_gcr_config.json
 WORKDIR /workspace
+VOLUME /busybox
 
-RUN set -x \
-  \
-  && chmod 777 /kaniko \
-  && mkdir -p $DOCKER_CONFIG \
-  && touch $DOCKER_CONFIG/.keep
+RUN ["/busybox/mkdir", "-p", "/bin"]
+RUN ["/busybox/ln", "-s", "/busybox/sh", "/bin/sh"]

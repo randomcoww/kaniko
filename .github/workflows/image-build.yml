@@ -16,7 +16,6 @@ on:
 
 env:
   GO_VERSION: 1.25
-  PATH: /bin:/kaniko-build
   SSL_CERT_DIR: /kaniko-build/ssl/certs
   DOCKER_CONFIG: /kaniko-build/.docker/
   DOCKER_CREDENTIAL_GCR_CONFIG: /kaniko-build/.config/gcloud/docker_credential_gcr_config.json
@@ -34,9 +33,9 @@ jobs:
     steps:
     - name: Set tag
       run: |
+        mv /kaniko /kaniko-build
         echo VERSION=$(wget -O - https://api.github.com/repos/chainguard-dev/kaniko/releases/latest | grep tag_name | cut -d '"' -f 4) | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
-        mv /kaniko /kaniko-build
 
     - name: Build and release container
       run: |
