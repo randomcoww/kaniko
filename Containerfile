@@ -32,11 +32,11 @@ FROM scratch
 COPY --from=busybox /bin /busybox
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/
 COPY --from=builder /src/files/nsswitch.conf /etc/
-COPY --from=builder /src/out/executor /kaniko/executor
-COPY --from=builder /src/out/warmer /kaniko/warmer
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-gcr /kaniko/docker-credential-gcr
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-ecr-login /kaniko/docker-credential-ecr-login
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-acr-env /kaniko/docker-credential-acr-env
+COPY --from=builder /src/out/executor /kaniko/
+COPY --from=builder /src/out/warmer /kaniko/
+COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-gcr /kaniko/
+COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-ecr-login /kaniko/
+COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-acr-env /kaniko/
 
 ENV HOME=/root
 ENV USER=root
