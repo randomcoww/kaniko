@@ -24,7 +24,7 @@ RUN set -x \
   && go install \
     github.com/GoogleCloudPlatform/docker-credential-gcr/v2 \
     github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login \
-    github.com/chrismellard/docker-credential-acr-env
+    github.com/chrismellard/docker-credential-acr-env \
   && make \
     out/executor \
     out/warmer \
