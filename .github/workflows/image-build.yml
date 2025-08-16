@@ -16,6 +16,8 @@ on:
 
 env:
   GO_VERSION: 1.25
+  SSL_CERT_DIR: /kaniko-build/ssl/certs
+  # DOCKER_CONFIG: /kaniko/.docker/
 
 jobs:
   build:
@@ -30,7 +32,7 @@ jobs:
     - name: Set tag
       run: |
         mv /kaniko /kaniko-build
-        mkdir -p /kaniko/.docker
+        mkdir -p $DOCKER_CONFIG
 
         echo VERSION=$(wget -O - https://api.github.com/repos/chainguard-dev/kaniko/releases/latest | grep tag_name | cut -d '"' -f 4) | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
