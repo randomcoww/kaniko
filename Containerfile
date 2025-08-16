@@ -38,13 +38,13 @@ FROM busybox:musl AS busybox
 FROM scratch
 
 COPY --from=busybox /bin /bin/
+COPY --from=builder /usr/local/bin /kaniko
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/
 COPY --from=builder /src/kaniko/files/nsswitch.conf /etc/
-COPY --from=builder --chown=0:0 /usr/local/bin/executor /kaniko/
-COPY --from=builder --chown=0:0 /usr/local/bin/warmer /kaniko/
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-gcr /kaniko/
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-ecr-login /kaniko/
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-acr-env /kaniko/
+# COPY --from=builder --chown=0:0 /usr/local/bin/warmer /kaniko/
+# COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-gcr /kaniko/
+# COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-ecr-login /kaniko/
+# COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-acr-env /kaniko/
 
 ENV PATH=/bin:/kaniko
 ENV HOME=/root
