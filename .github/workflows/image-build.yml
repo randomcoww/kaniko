@@ -22,7 +22,7 @@ jobs:
   build:
     runs-on: arc-runner-${{ github.event.repository.name }}
     container:
-      image: ghcr.io/randomcoww/kaniko:v1.25.1.20250816.1938
+      image: ghcr.io/randomcoww/kaniko:v1.25.1.20250816.2004
     permissions:
       contents: read
       packages: write
@@ -30,13 +30,12 @@ jobs:
     - name: Set tag
       run: |
         mv /kaniko /kaniko-build
-        mkdir -p $DOCKER_CONFIG
-
         echo VERSION=$(wget -O - https://api.github.com/repos/chainguard-dev/kaniko/releases/latest | grep tag_name | cut -d '"' -f 4) | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
 
     - name: Build and release container
       run: |
+        mkdir -p $DOCKER_CONFIG
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
           "auths": {
