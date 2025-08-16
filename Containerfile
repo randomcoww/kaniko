@@ -19,17 +19,18 @@ ENV GOBIN=/usr/local/bin
 
 RUN set -x \
   \
-  && mkdir -p /kaniko \
-  && chmod 777 /kaniko \
+  && mkdir -p $GOBIN \
   && git clone  --depth 1 -b $VERSION https://github.com/chainguard-dev/kaniko kaniko \
   && cd kaniko \
-  && make out/executor out/warmer \
-  && mv out/executor /kaniko \
-  && mv out/warmer /kaniko \
   && go install \
     github.com/GoogleCloudPlatform/docker-credential-gcr/v2 \
     github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login \
-    github.com/chrismellard/docker-credential-acr-env
+    github.com/chrismellard/docker-credential-acr-env \
+  && make \
+    out/executor \
+    out/warmer \
+  && mv out/executor $GOBIN/ \
+  && mv out/warmer $GOBIN/
 
 # use musl busybox since it's staticly compiled on all platforms
 FROM busybox:musl AS busybox
@@ -37,12 +38,9 @@ FROM busybox:musl AS busybox
 FROM scratch
 
 COPY --from=busybox /bin /bin/
-COPY --from=builder /kaniko /
+COPY --from=builder /usr/local/bin /kaniko
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/
 COPY --from=builder /src/kaniko/files/nsswitch.conf /etc/
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-gcr /kaniko/docker-credential-gcr
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-ecr-login /kaniko/docker-credential-ecr-login
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-acr-env /kaniko/docker-credential-acr-env
 
 ENV PATH=/bin:/kaniko
 ENV HOME=/root
@@ -54,5 +52,6 @@ WORKDIR /workspace
 
 RUN set -x \
   \
+  && chmod 777 /kaniko \
   && mkdir -p $DOCKER_CONFIG \
   && touch $DOCKER_CONFIG/.keep
