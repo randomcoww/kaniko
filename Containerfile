@@ -55,4 +55,4 @@ WORKDIR /workspace
 RUN set -x \
   \
   && mkdir -p $DOCKER_CONFIG \
-  && touch $DOCKER_CONFIG
+  && touch $DOCKER_CONFIG/.keep
