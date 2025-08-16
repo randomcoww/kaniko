@@ -26,7 +26,6 @@ jobs:
     container:
       image: gcr.io/kaniko-project/executor:debug
       # image: ghcr.io/randomcoww/kaniko:debug
-      options: --pull always
     permissions:
       contents: read
       packages: write
@@ -55,7 +54,6 @@ jobs:
           --destination="ghcr.io/${{ github.repository }}:$VERSION.$TAG" \
           --build-arg GO_VERSION=$GO_VERSION \
           --build-arg VERSION=$VERSION \
-          --build-arg GOOS=linux \
           --push-retry 3
   cleanup:
     needs:
