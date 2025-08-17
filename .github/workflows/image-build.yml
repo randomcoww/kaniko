@@ -29,12 +29,15 @@ jobs:
     steps:
     - name: Set tag
       run: |
-        mv /kaniko /kaniko-build
         echo VERSION=$(wget -O - https://api.github.com/repos/chainguard-dev/kaniko/releases/latest | grep tag_name | cut -d '"' -f 4) | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
 
+    # Hack moves /kaniko to /kaniko-build to work around issues like https://github.com/GoogleContainerTools/kaniko/issues/1757.
+    # --kaniko-dir may be an alternative but using this, $DOCKER_CONFIG isn't reliably picked up in old or new kaniko path for some reason.
     - name: Build and release container
       run: |
+        mv /kaniko /kaniko-build
+
         mkdir -p $DOCKER_CONFIG
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
