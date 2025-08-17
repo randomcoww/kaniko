@@ -53,7 +53,6 @@ jobs:
           --destination="ghcr.io/${{ github.repository }}:debug" \
           --build-arg GO_VERSION=$GO_VERSION \
           --build-arg VERSION=$VERSION \
-          --cache \
           --push-retry 3
   cleanup:
     needs:
