@@ -8,6 +8,7 @@ ARG VERSION
 ENV CGO_ENABLED=0
 ENV GOBIN=/usr/local/bin
 
+SHELL ["/usr/bin/bash", "-c"]
 RUN set -x \
   \
   && git clone  --depth 1 -b $VERSION https://github.com/chainguard-dev/kaniko /src \
