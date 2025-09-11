@@ -24,12 +24,17 @@ RUN set -x \
 FROM debian:bookworm-slim AS certs
 RUN apt update && apt install -y ca-certificates
 
+# Add jq
+FROM alpine:latest AS jq
+RUN apk add --no-cache jq
+
 # use musl busybox since it's staticly compiled on all platforms
 FROM busybox:musl AS busybox
 
 FROM scratch
 
 COPY --from=busybox /bin /busybox
+COPY --from=jq /usr/bin/jq /busybox/
 COPY --from=certs /etc/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/
 COPY --from=builder /src/files/nsswitch.conf /etc/
 COPY --from=builder /src/out/executor /kaniko/
