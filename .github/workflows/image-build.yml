@@ -18,6 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  REPO: mzihlmann/kaniko
   GO_VERSION: 1.25
   SSL_CERT_DIR: /kaniko-build/ssl/certs
 
@@ -31,7 +32,7 @@ jobs:
     steps:
     - name: Set tag
       run: |
-        echo VERSION=$(wget -O - https://api.github.com/repos/chainguard-dev/kaniko/releases/latest | grep tag_name | cut -d '"' -f 4) | tee -a "$GITHUB_ENV"
+        echo VERSION=$(wget -O - https://api.github.com/repos/$REPO/releases/latest | grep tag_name | cut -d '"' -f 4) | tee -a "$GITHUB_ENV"
         echo TAG=$(date -u +'%Y%m%d.%H%M') | tee -a "$GITHUB_ENV"
 
     # Hack moves /kaniko to /kaniko-build to work around issues like https://github.com/GoogleContainerTools/kaniko/issues/1757.
@@ -59,6 +60,7 @@ jobs:
           --destination="$INTERNAL_REGISTRY/${{ github.repository }}:latest" \
           --registry-certificate=$INTERNAL_REGISTRY=$DOCKER_CONFIG/internal.crt \
           --build-arg GO_VERSION=$GO_VERSION \
+          --build-arg REPO=$REPO \
           --build-arg VERSION=$VERSION \
           --use-new-run \
           --skip-unused-stages \

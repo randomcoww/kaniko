@@ -3,6 +3,7 @@
 ARG GO_VERSION=1.25
 
 FROM golang:$GO_VERSION AS builder
+ARG REPO
 ARG VERSION
 
 ENV CGO_ENABLED=0
@@ -11,7 +12,7 @@ ENV GOBIN=/usr/local/bin
 SHELL ["/usr/bin/bash", "-c"]
 RUN set -x \
   \
-  && git clone  --depth 1 -b $VERSION https://github.com/chainguard-dev/kaniko /src \
+  && git clone  --depth 1 -b $VERSION https://github.com/$REPO /src \
   && cd /src \
   && go install \
     github.com/GoogleCloudPlatform/docker-credential-gcr/v2 \
