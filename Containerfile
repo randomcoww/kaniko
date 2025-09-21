@@ -14,13 +14,8 @@ RUN set -x \
   \
   && git clone  --depth 1 -b $VERSION https://github.com/$REPO /src \
   && cd /src \
-  && go install \
-    github.com/GoogleCloudPlatform/docker-credential-gcr/v2 \
-    github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-login \
-    github.com/chrismellard/docker-credential-acr-env \
   && make \
     out/executor \
-    out/warmer \
   \
   && TARGETARCH=$(arch) \
   && TARGETARCH=${TARGETARCH/x86_64/amd64} && TARGETARCH=${TARGETARCH/aarch64/arm64} \
@@ -42,10 +37,6 @@ COPY --from=busybox /bin /busybox
 COPY --from=builder /src/out/jq /busybox/
 COPY --from=builder /src/files/nsswitch.conf /etc/
 COPY --from=builder /src/out/executor /kaniko/
-COPY --from=builder /src/out/warmer /kaniko/
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-gcr /kaniko/
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-ecr-login /kaniko/
-COPY --from=builder --chown=0:0 /usr/local/bin/docker-credential-acr-env /kaniko/
 
 ENV HOME=/root
 ENV USER=root
@@ -58,9 +49,3 @@ VOLUME /busybox
 
 RUN ["/busybox/mkdir", "-p", "/bin"]
 RUN ["/busybox/ln", "-s", "/busybox/sh", "/bin/sh"]
-
-# not working with kaniko build
-RUN set -x \
-  \
-  && chmod 777 /kaniko \
-  && mkdir -p /kaniko/.docker
