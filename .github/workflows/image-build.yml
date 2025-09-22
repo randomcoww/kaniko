@@ -20,13 +20,13 @@ concurrency:
 env:
   REPO: mzihlmann/kaniko
   GO_VERSION: 1.25
-  SSL_CERT_DIR: /kaniko-build/ssl/certs
+  SSL_CERT_DIR: /kaniko/ssl/certs
 
 jobs:
   build:
     runs-on: arc-runner-${{ github.event.repository.name }}
     container:
-      image: registry.default/randomcoww/kaniko:latest
+      image: docker.io/martizih/kaniko:debug
     permissions:
       contents: read
     steps:
@@ -39,25 +39,12 @@ jobs:
     # --kaniko-dir may be an alternative but using this, $DOCKER_CONFIG isn't reliably picked up in old or new kaniko path for some reason.
     - name: Build and release container
       run: |
-        mkdir -p $DOCKER_CONFIG
-        cat > $DOCKER_CONFIG/config.json <<EOF
-        {
-          "auths": {
-            "ghcr.io": {
-              "auth": "$(echo -n ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} | base64 -w0)"
-            }
-          }
-        }
-        EOF
-        echo -e "$INTERNAL_CA_CERT" > $DOCKER_CONFIG/internal.crt
-
         /kaniko/executor \
-          --kaniko-dir=/kaniko-build \
           --dockerfile="./Containerfile" \
           --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
           --destination="$INTERNAL_REGISTRY/${{ github.repository }}:$VERSION.$TAG" \
           --destination="$INTERNAL_REGISTRY/${{ github.repository }}:latest" \
-          --registry-certificate=$INTERNAL_REGISTRY=$DOCKER_CONFIG/internal.crt \
+          --skip-tls-verify-registry=$INTERNAL_REGISTRY \
           --build-arg GO_VERSION=$GO_VERSION \
           --build-arg REPO=$REPO \
           --build-arg VERSION=$VERSION \

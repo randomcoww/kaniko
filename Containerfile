@@ -1,4 +1,4 @@
-# https://github.com/chainguard-dev/kaniko/blob/main/deploy/Dockerfile
+# https://github.com/chainguard-dev/kaniko-build/blob/main/deploy/Dockerfile
 
 ARG GO_VERSION=1.25
 
@@ -24,25 +24,27 @@ RUN set -x \
   && chmod +x out/jq
 
 # Generate latest ca-certificates
-FROM debian:bookworm-slim AS certs
-RUN apt update && apt install -y ca-certificates
+FROM alpine:latest AS certs
+RUN set -x \
+  \
+  apk add --no-cache ca-certificates
 
 # use musl busybox since it's staticly compiled on all platforms
 FROM busybox:musl AS busybox
 
 FROM scratch
 
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /kaniko-build/ssl/certs/
 COPY --from=busybox /bin /busybox
 COPY --from=builder /src/out/jq /busybox/
 COPY --from=builder /src/files/nsswitch.conf /etc/
-COPY --from=builder /src/out/executor /kaniko/
+COPY --from=builder /src/out/executor /kaniko-build/
 
 ENV HOME=/root
 ENV USER=root
-ENV PATH=/usr/local/bin:/kaniko:/busybox
-ENV SSL_CERT_DIR=/kaniko/ssl/certs
-ENV DOCKER_CONFIG=/kaniko/.docker/
+ENV PATH=/usr/local/bin:/kaniko-build:/busybox
+ENV SSL_CERT_DIR=/kaniko-build/ssl/certs
+ENV DOCKER_CONFIG=/kaniko-build/.docker/
 WORKDIR /workspace
 VOLUME /busybox
 
