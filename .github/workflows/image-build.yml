@@ -39,8 +39,6 @@ jobs:
     # --kaniko-dir may be an alternative but using this, $DOCKER_CONFIG isn't reliably picked up in old or new kaniko path for some reason.
     - name: Build and release container
       run: |
-        mv /kaniko /kaniko-build
-
         mkdir -p $DOCKER_CONFIG
         cat > $DOCKER_CONFIG/config.json <<EOF
         {
@@ -53,7 +51,8 @@ jobs:
         EOF
         echo -e "$INTERNAL_CA_CERT" > $DOCKER_CONFIG/internal.crt
 
-        /kaniko-build/executor \
+        /kaniko/executor \
+          --kaniko-dir=/kaniko-build \
           --dockerfile="./Containerfile" \
           --context="${{ github.repositoryUrl }}#${{ github.ref }}#${{ github.sha }}" \
           --destination="$INTERNAL_REGISTRY/${{ github.repository }}:$VERSION.$TAG" \
